@@ -1,0 +1,38 @@
+<Label>:
+    font_size: 30
+    size_hint: 0.3,0.2
+
+<Button>:
+    font_size: 30
+    size_hint: 0.5,0.2
+
+
+
+<FloatLayout>:
+    tabloidid: tabloid
+    refreshbtnid: refreshbtn
+    refreshingbtnid: refreshingbtn
+    testbtnid: testbtn
+    Label:
+        id: tabloid
+        pos_hint:{"x":0.35,"y":0.33}
+        text:"Temperature hasn't been updated yet"
+    Label:
+        id: graphplaceholder
+        pos_hint:{"x":0.35,"y":0.8}
+        text:"GraphPlaceholder"
+    Button:
+        id: refreshbtn
+        pos_hint:{"left":1,"bottom":1}
+        text:"Refresh"
+        on_press:root.refresh()
+    Button:
+        id: refreshingbtn
+        pos_hint:{"right":1,"bottom":1}
+        text: "Start refreshing"
+        on_press: root.refreshing()
+    Button:
+        id: testbtn
+        pos_hint:{"left":1,"y":.2}
+        text: "Test"
+        on_press: root.callback_canvas()
