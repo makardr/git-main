@@ -19,8 +19,33 @@ import matplotlib
 matplotlib.use('module://kivy.garden.matplotlib.backend_kivy')
 import matplotlib.pyplot as plt
 from kivy.garden.matplotlib.backend_kivy import FigureCanvas
+import configparser
+config = configparser.ConfigParser()
 
 temperature_number_global = None
+
+def config_read():
+    config.read('settings.ini')
+    print(config.get('DEFAULT', 'url'))
+    print(config.sections())
+    print('Settings loaded')
+
+try:
+    config_read()
+except:
+    print('File was not found, creating new one.')
+    config['DEFAULT'] = {'url': 'http://192.168.0.120',
+                         'temperature1': '50',
+                         'temperature_critical': '60'}
+    config.add_section('custom_settings')
+    config['custom_settings']['url'] = config.get('DEFAULT', 'url')
+    config['custom_settings']['temperature1'] = config.get('DEFAULT', 'temperature1')
+    config['custom_settings']['temperature_critical'] = config.get('DEFAULT', 'temperature_critical')
+    print('File created')
+
+    with open('settings.ini', 'w') as configfile:
+        config.write(configfile)
+    config_read()
 
 # Получение температуры
 class AccessTempSensor:
@@ -43,14 +68,14 @@ class AccessTempSensor:
             temperature_number_global = f"Connection error{e}"
 
 
-url='http://192.168.0.120'
-furnance = AccessTempSensor(url)
 
-temperature_thread = threading.Thread(target=furnance.get_temperature_number, args=(url,))
+furnance = AccessTempSensor(config.get('custom_settings','url'))
+
+temperature_thread = threading.Thread(target=furnance.get_temperature_number, args=(config.get('DEFAULT','url'),))
 
 
-notif_settings_number_ph=50
-notif_settings_critical_number_ph=60
+notif_settings_number_ph=config.get('custom_settings','temperature1')
+notif_settings_critical_number_ph=config.get('custom_settings','temperature_critical')
 
 # Создание интерфейса, сетки
 class Float(FloatLayout):
