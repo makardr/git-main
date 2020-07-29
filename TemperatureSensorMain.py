@@ -38,9 +38,6 @@ except:
                          'temperature1': '50',
                          'temperature_critical': '60'}
     config.add_section('custom_settings')
-    config['custom_settings']['url'] = config.get('DEFAULT', 'url')
-    config['custom_settings']['temperature1'] = config.get('DEFAULT', 'temperature1')
-    config['custom_settings']['temperature_critical'] = config.get('DEFAULT', 'temperature_critical')
     print('File created')
 
     with open('settings.ini', 'w') as configfile:
@@ -69,16 +66,16 @@ class AccessTempSensor:
 
 
 
-furnance = AccessTempSensor(config.get('custom_settings','url'))
+furnance = AccessTempSensor(config.get('DEFAULT','url'))
 
 temperature_thread = threading.Thread(target=furnance.get_temperature_number, args=(config.get('DEFAULT','url'),))
 
 
-notif_settings_number_ph=config.get('custom_settings','temperature1')
-notif_settings_critical_number_ph=config.get('custom_settings','temperature_critical')
+notif_settings_number_ph=config.get('DEFAULT','temperature1')
+notif_settings_critical_number_ph=config.get('DEFAULT','temperature_critical')
 
 # Создание интерфейса, сетки
-class Float(FloatLayout):
+class MainWindow(FloatLayout):
     def __init__(self, **kwargs):
         super(FloatLayout, self).__init__(**kwargs)
         self.buttonstate = False
@@ -193,18 +190,18 @@ class Float(FloatLayout):
         data.close()
         plt.xticks(rotation=45, ha='right')
         canvas.draw_idle()
+
 fig, ax = plt.subplots()
 plt.xticks(rotation=45, ha='right')
 plt.plot([],[])
 canvas = fig.canvas
-
+canvas.pos = (0, MainWindow().height * 3)
+canvas.size_hint = (1, 0.5)
 
 class TemperatureSensorApp(App):
     title = 'Temperature sensor'
     def build(self):
-        root=Float()
-        canvas.pos = (0, root.height * 3)
-        canvas.size_hint = (1, 0.5)
+        root=MainWindow()
         root.add_widget(canvas)
         return root
 
