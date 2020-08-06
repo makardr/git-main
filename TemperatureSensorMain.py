@@ -9,6 +9,7 @@ from kivy.clock import Clock
 from bs4 import BeautifulSoup
 from kivy.properties import ObjectProperty
 from kivy.uix.widget import Widget
+from kivy.uix.screenmanager import ScreenManager, Screen
 import plyer
 import datetime
 import requests
@@ -36,7 +37,8 @@ except:
     print('File was not found, creating new one.')
     config['DEFAULT'] = {'url': 'http://192.168.0.120',
                          'temperature1': '50',
-                         'temperature_critical': '60'}
+                         'temperature_critical': '60',
+                         'refresh_time': '10'}
     config.add_section('custom_settings')
     print('File created')
 
@@ -75,9 +77,9 @@ notif_settings_number_ph=config.get('DEFAULT','temperature1')
 notif_settings_critical_number_ph=config.get('DEFAULT','temperature_critical')
 
 # Создание интерфейса, сетки
-class MainWindow(FloatLayout):
+class MainWindow(Screen):
     def __init__(self, **kwargs):
-        super(FloatLayout, self).__init__(**kwargs)
+        super(Screen, self).__init__(**kwargs)
         self.buttonstate = False
         self.temperature_state_is_triggered = False
         self.critical_temperature_state_is_triggered = False
@@ -86,7 +88,7 @@ class MainWindow(FloatLayout):
         refreshingbtnid = ObjectProperty(None)
         testbtnid = ObjectProperty(None)
     def notifications(self):
-        if notif_settings_number_ph <= int(temperature_number_global) <= notif_settings_critical_number_ph:
+        if int(notif_settings_number_ph) <= int(temperature_number_global) <= int(notif_settings_critical_number_ph):
             print("notifications was triggered")
             self.critical_temperature_state_is_triggered = False
             if self.temperature_state_is_triggered == False:
@@ -96,7 +98,7 @@ class MainWindow(FloatLayout):
             else:
                 print("notifications temperature 1 is not triggered")
                 pass
-        elif int(temperature_number_global) >= notif_settings_critical_number_ph:
+        elif int(temperature_number_global) >= int(notif_settings_critical_number_ph):
             if self.critical_temperature_state_is_triggered == False:
                 plyer.notification.notify(title="test title", message=temperature_number_global)
                 self.critical_temperature_state_is_triggered = True
@@ -105,7 +107,7 @@ class MainWindow(FloatLayout):
                 print("notifications critical temperature is not triggered")
                 pass
         else:
-            print("notifications wasnt triggered")
+            print("notifications wasn't triggered")
             self.temperature_state_is_triggered == False
     def temperature_recorder(self):
         currentDT=datetime.datetime.now()
@@ -191,6 +193,7 @@ class MainWindow(FloatLayout):
         plt.xticks(rotation=45, ha='right')
         canvas.draw_idle()
 
+
 fig, ax = plt.subplots()
 plt.xticks(rotation=45, ha='right')
 plt.plot([],[])
@@ -198,12 +201,22 @@ canvas = fig.canvas
 canvas.pos = (0, MainWindow().height * 3)
 canvas.size_hint = (1, 0.5)
 
+class SettingsWindow(Screen):
+    pass
+
+
+
+
+
 class TemperatureSensorApp(App):
     title = 'Temperature sensor'
     def build(self):
-        root=MainWindow()
-        root.add_widget(canvas)
-        return root
+        sm = ScreenManager()
+        mw=MainWindow(name='main')
+        mw.add_widget(canvas)
+        sm.add_widget(mw)
+        sm.add_widget(SettingsWindow(name='settings'))
+        return sm
 
 
 
