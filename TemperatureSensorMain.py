@@ -148,6 +148,7 @@ class MainWindow(Screen):
     def refresh(self):
         print(f"refresh button thread is {threading.current_thread()}")
         refresh_thread = threading.Thread(target=self.refresh_thread)
+        refresh_thread.daemon = True
         refresh_thread.start()
         print("refresh button was pressed")
 
@@ -175,6 +176,7 @@ class MainWindow(Screen):
     def refreshing(self):
         print(f"refreshing thread is {threading.current_thread()}")
         refreshing_thread2 = threading.Thread(target=self.refreshing_thread)
+        refreshing_thread2.daemon = True
         refreshing_thread2.start()
         print("refreshing button")
     # График
