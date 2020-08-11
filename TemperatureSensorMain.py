@@ -21,6 +21,8 @@ matplotlib.use('module://kivy.garden.matplotlib.backend_kivy')
 import matplotlib.pyplot as plt
 from kivy.garden.matplotlib.backend_kivy import FigureCanvas
 import configparser
+
+
 config = configparser.ConfigParser()
 
 temperature_number_global = None
@@ -39,7 +41,10 @@ except:
                          'temperature1': '50',
                          'temperature_critical': '60',
                          'refresh_time': '10'}
-    config.add_section('custom_settings')
+    config['custom_settings'] = {'url': config['DEFAULT']['url'],
+                         'temperature1': config['DEFAULT']['temperature1'],
+                         'temperature_critical': config['DEFAULT']['temperature_critical'],
+                         'refresh_time': config['DEFAULT']['refresh_time']}
     print('File created')
 
     with open('settings.ini', 'w') as configfile:
@@ -68,13 +73,10 @@ class AccessTempSensor:
 
 
 
-furnance = AccessTempSensor(config.get('DEFAULT','url'))
-
-temperature_thread = threading.Thread(target=furnance.get_temperature_number, args=(config.get('DEFAULT','url'),))
-
-
-notif_settings_number_ph=config.get('DEFAULT','temperature1')
-notif_settings_critical_number_ph=config.get('DEFAULT','temperature_critical')
+furnance = AccessTempSensor(config.get('custom_settings','url'))
+temperature_thread = threading.Thread(target=furnance.get_temperature_number, args=(config.get('custom_settings','url'),))
+notif_settings_number_ph=config.get('custom_settings','temperature1')
+notif_settings_critical_number_ph=config.get('custom_settings','temperature_critical')
 
 # Создание интерфейса, сетки
 class MainWindow(Screen):
@@ -87,6 +89,7 @@ class MainWindow(Screen):
         refreshbtnid = ObjectProperty(None)
         refreshingbtnid = ObjectProperty(None)
         testbtnid = ObjectProperty(None)
+
     def notifications(self):
         if int(notif_settings_number_ph) <= int(temperature_number_global) <= int(notif_settings_critical_number_ph):
             print("notifications was triggered")
@@ -196,6 +199,7 @@ class MainWindow(Screen):
         canvas.draw_idle()
 
 
+
 fig, ax = plt.subplots()
 plt.xticks(rotation=45, ha='right')
 plt.plot([],[])
@@ -204,10 +208,37 @@ canvas.pos = (0, MainWindow().height * 3)
 canvas.size_hint = (1, 0.5)
 
 class SettingsWindow(Screen):
-    pass
+    def __init__(self, **kwargs):
+        super(Screen, self).__init__(**kwargs)
+        urlinputid = ObjectProperty(None)
+        refreshinputid = ObjectProperty(None)
+        temperature_criticalinputid = ObjectProperty(None)
+        temperature1inputid = ObjectProperty(None)
+        self.urlinputid.text = config.get('custom_settings', 'url')
+        self.refreshinputid.text = config.get('custom_settings', 'refresh_time')
+        self.temperature_criticalinputid.text = config.get('custom_settings', 'temperature_critical')
+        self.temperature1inputid.text = config.get('custom_settings','temperature1')
+    def save(self,set,com):
+        evaluated=eval(com)
+        config['custom_settings'][set] = evaluated
+        evaluated == config.get('custom_settings',set)
+        with open('settings.ini', 'w') as configfile:
+            config.write(configfile)
+        config_read()
+    def reset(self):
+        config['custom_settings']['url'] = config['DEFAULT']['url']
+        config['custom_settings']['refresh_time'] = config['DEFAULT']['refresh_time']
+        config['custom_settings']['temperature_critical'] = config['DEFAULT']['temperature_critical']
+        config['custom_settings']['temperature1'] = config['DEFAULT']['temperature1']
 
+        self.urlinputid.text = config.get('custom_settings', 'url')
+        self.refreshinputid.text = config.get('custom_settings', 'refresh_time')
+        self.temperature_criticalinputid.text = config.get('custom_settings', 'temperature_critical')
+        self.temperature1inputid.text = config.get('custom_settings', 'temperature1')
 
-
+        with open('settings.ini', 'w') as configfile:
+            config.write(configfile)
+        config_read()
 
 
 class TemperatureSensorApp(App):

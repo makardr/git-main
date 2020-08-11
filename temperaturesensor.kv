@@ -6,6 +6,9 @@
     font_size: 30
     size_hint: 0.5,0.2
 
+<TextInput>:
+    font_size: 30
+    size_hint: 0.5,0.2
 
 <MainWindow>:
     tabloidid: tabloid
@@ -45,9 +48,54 @@
 
 
 <SettingsWindow>:
-
-    Button:
-        text: "Go back"
-        on_release:
-            app.root.current = "main"
-            root.manager.transition.direction = "right"
+    urlinputid: urlinput
+    refreshinputid: refreshinput
+    temperature_criticalinputid: temperature_criticalinput
+    temperature1inputid: temperature1input
+    FloatLayout:
+        TextInput:
+            id: urlinput
+            text: "refresh_time"
+            pos_hint:{"left":1,"y":.2}
+        TextInput:
+            id: refreshinput
+            text: "refresh_time"
+            pos_hint:{"left":1,"y":.4}
+        TextInput:
+            id: temperature_criticalinput
+            text: "temperature_critical"
+            pos_hint:{"left":1,"y":.6}
+        TextInput:
+            id: temperature1input
+            text: "temperature1"
+            pos_hint:{"left":1,"y":.8}
+        Button:
+            text: "Go back"
+            on_release:
+                app.root.current = "main"
+                root.manager.transition.direction = "right"
+        Button:
+            text: "url"
+            pos_hint:{"right":1,"y":.2}
+            on_press:
+                root.save('url', 'self.urlinputid.text')
+        Button:
+            text: "refresh_time"
+            pos_hint:{"right":1,"y":.4}
+            on_press:
+                root.save('refresh_time', 'self.refreshinputid.text')
+        Button:
+            text: "temperature_critical"
+            pos_hint:{"right":1,"y":.6}
+            on_press:
+                root.save('temperature_critical', 'self.temperature_criticalinputid.text')
+        Button:
+            text: "temperature1"
+            pos_hint:{"right":1,"y":.8}
+            on_press:
+                root.save('temperature1', 'self.temperature1inputid.text')
+        Button:
+            text: "Reset"
+            pos_hint:{"right":1}
+            on_press:
+                root.reset()
