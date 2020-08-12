@@ -14,9 +14,8 @@
     tabloidid: tabloid
     refreshbtnid: refreshbtn
     refreshingbtnid: refreshingbtn
-    testbtnid: testbtn
-    FloatLayout:
 
+    FloatLayout:
         Label:
             id: tabloid
             pos_hint:{"x":0.35,"y":0.33}
@@ -30,14 +29,8 @@
             id: refreshingbtn
             pos_hint:{"right":1,"bottom":1}
             text: "Start refreshing"
-            on_press: root.refreshing()
-        Button:
-            id: testbtn
-            pos_hint:{"left":1,"y":.2}
-            text: "Test"
-
             on_press:
-                root.callback_canvas()
+                root.refreshing()
         Button:
             id: settingsbtn
             pos_hint:{"right":1,"y":.2}

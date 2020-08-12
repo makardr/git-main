@@ -88,7 +88,6 @@ class MainWindow(Screen):
         tabloidid = ObjectProperty(None)
         refreshbtnid = ObjectProperty(None)
         refreshingbtnid = ObjectProperty(None)
-        testbtnid = ObjectProperty(None)
 
     def notifications(self):
         if int(notif_settings_number_ph) <= int(temperature_number_global) <= int(notif_settings_critical_number_ph):
@@ -139,12 +138,13 @@ class MainWindow(Screen):
         refresh_thread_inside_thread.start()
         # print(temperature_thread)
         # print(threading.current_thread())
-
+        print(f"number of active threads is {threading.active_count()}")
         try:
             int(temperature_number_global)
             self.update_temperature_text()
             self.temperature_recorder()
             self.notifications()
+            self.callback_canvas()
         except:
             self.update_temperature_text()
     # Первая кнопка
@@ -160,7 +160,7 @@ class MainWindow(Screen):
     def my_callback(self, time):
         print("Callback called")
         self.refresh()
-    # действие кнопки
+    # действие второй кнопки
     def refreshing_thread(self):
         print("refreshing thread has started")
         print(f"refreshing_thread2 thread is {threading.current_thread()}")
@@ -170,7 +170,8 @@ class MainWindow(Screen):
             # Это нужно в треде для furnance.get_temperature_number()
             furnance.get_temperature_number()
             self.update_temperature_text()
-            self.event = Clock.schedule_interval(self.my_callback, 10 / 1.)
+            self.callback_canvas()
+            self.event = Clock.schedule_interval(self.my_callback, int(config.get('custom_settings', 'refresh_time')) / 1.)
         else:
             self.buttonstate = False
             self.refreshingbtnid.text = "Start refreshing"
